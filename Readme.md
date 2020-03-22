@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Михаил Воробьев](https://up.htmlacademy.ru/yii/1/user/646591).
-* Наставник: Кексобот.
+* Наставник: [Олег Мифле](https://htmlacademy.ru/profile/id496565).
 
 ---
 
