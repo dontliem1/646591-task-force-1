@@ -15,22 +15,24 @@ class Task
     const ACTION_COMPLETE = 'action_complete';
     const ACTION_REFUSE = 'action_refuse';
 
-    const ROLE_EXECUTOR = 'executor';
     const ROLE_CUSTOMER = 'customer';
+    const ROLE_EXECUTOR = 'executor';
 
     private $status;
     private $customer;
     private $executor;
 
     /**
-     * Создание задания и присовение ему статуса «Новое»
+     * Создание задания и присвоение ему статуса «Новое»
      *
-     * @param  int $customer_id ID заказчика, создавшего задание
+     * @param  int $customerId ID заказчика, создавшего задание
+     * @param  int $executorId ID исполнителя, откликнувшегося на задание
      * @return void
      */
-    public function __construct(int $customer_id)
+    public function __construct(int $customerId, int $executorId)
     {
-        $this->customer = $customer_id;
+        $this->customer = $customerId;
+        $this->executor = $executorId;
         $this->status = self::STATUS_NEW;
     }
 
