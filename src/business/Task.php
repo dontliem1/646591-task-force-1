@@ -1,6 +1,6 @@
 <?php
 
-namespace Taskforce;
+namespace taskforce\business;
 
 class Task
 {

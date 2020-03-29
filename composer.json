@@ -1,0 +1,13 @@
+{
+    "name": "htmlacademy/taskforce",
+    "type": "project",
+    "require": {
+    },
+    "require-dev": {
+    },
+    "autoload": {
+      "psr-4": {
+        "taskforce\\": "src/"
+      }
+    }
+  }
