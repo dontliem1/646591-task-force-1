@@ -1,10 +1,10 @@
 <?php
 
-use Taskforce\Task;
+use Taskforce\Business\Task;
 
-require_once '../src/Task.php';
+require_once '../../vendor/autoload.php';
 
-$exampleTask = new Task(0);
+$exampleTask = new Task(0, 0);
 
 echo '<pre>';
 print_r($exampleTask->getAllStatuses()??'Не удалось получить список всех статусов<br>');
