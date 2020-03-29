@@ -1,6 +1,6 @@
 <?php
 
-use taskforce\business\Task;
+use Taskforce\Business\Task;
 
 require_once '../../vendor/autoload.php';
 
