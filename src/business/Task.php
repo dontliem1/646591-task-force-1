@@ -1,5 +1,4 @@
 <?php
-
 namespace Taskforce\Business;
 
 class Task
@@ -10,30 +9,68 @@ class Task
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
 
-    const ACTION_CANCEL = 'action_cancel';
-    const ACTION_RESPOND = 'action_respond';
-    const ACTION_COMPLETE = 'action_complete';
-    const ACTION_REFUSE = 'action_refuse';
-
-    const ROLE_CUSTOMER = 'customer';
-    const ROLE_EXECUTOR = 'executor';
-
     private $status;
     private $customer;
     private $executor;
+    private $allActions = [];
 
     /**
-     * Создание задания и присвоение ему статуса «Новое»
+     * Конструктор задания на основе id заказчика, исполнителя и статуса
      *
+     * @param  array $actions Объекты-действия
+     * @param  string $status Текущий статус задания
      * @param  int $customerId ID заказчика, создавшего задание
-     * @param  int $executorId ID исполнителя, откликнувшегося на задание
+     * @param  int|null $executorId ID исполнителя, откликнувшегося на задание (при наличии)
      * @return void
      */
-    public function __construct(int $customerId, int $executorId)
+    public function __construct(array $actions, string $status, int $customerId, ?int $executorId = null)
     {
+        $this->status = $status;
         $this->customer = $customerId;
         $this->executor = $executorId;
-        $this->status = self::STATUS_NEW;
+        foreach ($actions as $action) {
+            $this->allActions[$action->getActionId()] = $action;
+        }
+    }
+    
+    /**
+     * Геттер статуса задания
+     *
+     * @return string Статус задания
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+    
+    /**
+     * Геттер заказчика задания
+     *
+     * @return int ID заказчика
+     */
+    public function getCustomerId(): int
+    {
+        return $this->customer;
+    }
+    
+    /**
+     * Геттер исполнителя задания
+     *
+     * @return int ID исполнителя
+     */
+    public function getExecutorId(): int
+    {
+        return $this->executor;
+    }
+
+    /**
+     * Вывод массива всех возможных действий с заданиями
+     *
+     * @return array Массив всех действий
+     */
+    public static function getAllActions(): array
+    {
+        return $this->allActions;
     }
 
     /**
@@ -51,44 +88,35 @@ class Task
             self::STATUS_FAILED => 'Проваленное'
         ];
     }
-
+    
     /**
-     * Вывод массива всех возможных действий с заданиями
+     * Возвращает список всех возможных действий с заданием для указанного пользователя
      *
-     * @return array Массив всех действий
+     * @param  int $userId ID пользователя
+     * @return array Массив объектов доступных действий
      */
-    public static function getAllActions(): array
+    public function getPossibleActions(int $userId): array
     {
-        return [
-            self::ACTION_CANCEL => 'Отменить',
-            self::ACTION_RESPOND => 'Откликнуться',
-            self::ACTION_COMPLETE => 'Завершить',
-            self::ACTION_REFUSE => 'Отказаться'
-        ];
-    }
-
-    /**
-     * Вывод возможных действий для указанного статуса задания
-     *
-     * @param  string $status Внутреннее имя статуса
-     * @return array Массив возможных действий
-     */
-    public static function getPossibleActions(string $status): array
-    {
-        switch ($status) {
+        $possibleActions = [];
+        switch ($this->status) {
             case self::STATUS_NEW:
-                return [
-                    self::ACTION_CANCEL,
-                    self::ACTION_RESPOND
-                ];
+                if (isset($this->allActions['action_cancel']) && $this->allActions['action_cancel']->checkUserRights($userId, $this->customer, $this->executor)) {
+                    $possibleActions[] = $this->allActions['action_cancel'];
+                }
+                if (isset($this->allActions['action_respond']) && $this->allActions['action_respond']->checkUserRights($userId, $this->customer, $this->executor)) {
+                    $possibleActions[] = $this->allActions['action_respond'];
+                }
                 break;
             case self::STATUS_ACTIVE:
-                return [
-                    self::ACTION_COMPLETE,
-                    self::ACTION_REFUSE
-                ];
+                if (isset($this->allActions['action_complete']) && $this->allActions['action_complete']->checkUserRights($userId, $this->customer, $this->executor)) {
+                    $possibleActions[] = $this->allActions['action_complete'];
+                }
+                if (isset($this->allActions['action_refuse']) && $this->allActions['action_refuse']->checkUserRights($userId, $this->customer, $this->executor)) {
+                    $possibleActions[] = $this->allActions['action_refuse'];
+                }
                 break;
         }
+        return $possibleActions;
     }
 
     /**
@@ -100,16 +128,16 @@ class Task
     public static function getNextStatus(string $action): string
     {
         switch ($action) {
-            case self::ACTION_CANCEL:
+            case 'action_cancel':
                 return self::STATUS_CANCELED;
                 break;
-            case self::ACTION_RESPOND:
+            case 'action_respond':
                 return self::STATUS_ACTIVE;
                 break;
-            case self::ACTION_COMPLETE:
+            case 'action_complete':
                 return self::STATUS_COMPLETED;
                 break;
-            case self::ACTION_REFUSE:
+            case 'action_refuse':
                 return self::STATUS_FAILED;
                 break;
         }
