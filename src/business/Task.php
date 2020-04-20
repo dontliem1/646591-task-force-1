@@ -1,6 +1,10 @@
 <?php
 namespace Taskforce\Business;
 
+use Taskforce\Exceptions\ActionTypeException;
+use Taskforce\Exceptions\StatusNameException;
+use Taskforce\Exceptions\ActionNameException;
+
 class Task
 {
     const STATUS_NEW = 'new';
@@ -25,12 +29,19 @@ class Task
      */
     public function __construct(array $actions, string $status, int $customerId, ?int $executorId = null)
     {
+        foreach ($actions as $action) {
+            if (!is_object($action) || !in_array('Taskforce\Actions\BaseAction', class_implements($action))) {
+                throw new ActionTypeException('Неверный тип действия в массиве');
+            } else {
+                $this->allActions[$action->getActionId()] = $action;
+            }
+        }
+        if (!array_key_exists($status, $this->getAllStatuses())) {
+            throw new StatusNameException('Неверное название статуса');
+        }
         $this->status = $status;
         $this->customer = $customerId;
         $this->executor = $executorId;
-        foreach ($actions as $action) {
-            $this->allActions[$action->getActionId()] = $action;
-        }
     }
     
     /**
@@ -140,6 +151,8 @@ class Task
             case 'action_refuse':
                 return self::STATUS_FAILED;
                 break;
+            default:
+                throw new ActionNameException('Неверное имя действия');
         }
     }
 }
