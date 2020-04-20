@@ -1,7 +1,7 @@
 <?php
 namespace Taskforce\Actions;
 
-class ActionCancel extends BaseAction
+class ActionCancel implements BaseAction
 {        
     public function getActionName(): string
     {

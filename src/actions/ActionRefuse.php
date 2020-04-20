@@ -1,7 +1,7 @@
 <?php
 namespace Taskforce\Actions;
 
-class ActionRefuse extends BaseAction
+class ActionRefuse implements BaseAction
 {        
     public function getActionName(): string
     {
