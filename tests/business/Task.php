@@ -27,22 +27,20 @@ try {
     $activeTaskCustomer = new Task($actions, 'active', 1, 2);
     $activeTaskExecutor = new Task($actions, 'active', 2, 1);
     $activeTaskRandomUser = new Task($actions, 'active', 2, 3);
-    assert($newTaskCustomer->getPossibleActions($current_user) === [$actionCancel], 'Заказчик при просмотре своего нового задания');
-    assert($newTaskNotCustomer->getPossibleActions($current_user) === [$actionRespond], 'Пользователь при просмотре чужого нового задания');
-    assert($activeTaskCustomer->getPossibleActions($current_user) === [$actionComplete], 'Заказчик при просмотре активного задания');
-    assert($activeTaskExecutor->getPossibleActions($current_user) === [$actionRefuse], 'Исполнитель при просмотре активного задания');
-    assert($activeTaskRandomUser->getPossibleActions($current_user) === [], 'Пользователь при просмотре чужого активного задания');
-} catch (ActionTypeException $e) {
-    error_log("Не удалось создать объект задания: " . $e->getMessage());
-} catch (StatusNameException $e) {
-    error_log("Не удалось создать объект задания: " . $e->getMessage());
+    assert($newTaskCustomer->getPossibleActions($current_user) === [$actionCancel], 'Customer looking at his new task');
+    assert($newTaskNotCustomer->getPossibleActions($current_user) === [$actionRespond], 'User looking at another\'s new task');
+    assert($activeTaskCustomer->getPossibleActions($current_user) === [$actionComplete], 'Customer looking at his active task');
+    assert($activeTaskExecutor->getPossibleActions($current_user) === [$actionRefuse], 'Executor looking at his active task');
+    assert($activeTaskRandomUser->getPossibleActions($current_user) === [], 'User looking at another\'s active task');
+} catch (ActionTypeException | StatusNameException $e) {
+    error_log("Can't construct a Task object: " . $e->getMessage());
 }
 
 try {
-    assert($newTaskCustomer->getNextStatus($actionCancel->getActionId()) === Task::STATUS_CANCELED, 'Отмена задания');
-    assert($newTaskCustomer->getNextStatus($actionRespond->getActionId()) === Task::STATUS_ACTIVE, 'Отклик на задание');
-    assert($newTaskCustomer->getNextStatus($actionComplete->getActionId()) === Task::STATUS_COMPLETED, 'Завершение задания');
-    assert($newTaskCustomer->getNextStatus($actionRefuse->getActionId()) === Task::STATUS_FAILED, 'Отказ от задания');
+    assert($newTaskCustomer->getNextStatus($actionCancel->getActionId()) === Task::STATUS_CANCELED, 'Cancel task');
+    assert($newTaskCustomer->getNextStatus($actionRespond->getActionId()) === Task::STATUS_ACTIVE, 'Respond to task');
+    assert($newTaskCustomer->getNextStatus($actionComplete->getActionId()) === Task::STATUS_COMPLETED, 'Complete task');
+    assert($newTaskCustomer->getNextStatus($actionRefuse->getActionId()) === Task::STATUS_FAILED, 'Refuse task');
 } catch (ActionNameException $e) {
-    error_log("Не удалось проверить смену статус: " . $e->getMessage());
+    error_log("Can't change status: " . $e->getMessage());
 }
