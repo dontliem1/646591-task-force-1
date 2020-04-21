@@ -1,6 +1,10 @@
 <?php
 namespace Taskforce\Business;
 
+use Taskforce\Exceptions\ActionTypeException;
+use Taskforce\Exceptions\StatusNameException;
+use Taskforce\Exceptions\ActionNameException;
+
 class Task
 {
     const STATUS_NEW = 'new';
@@ -15,28 +19,35 @@ class Task
     private $allActions = [];
 
     /**
-     * Конструктор задания на основе id заказчика, исполнителя и статуса
+     * Task constructor
      *
-     * @param  array $actions Объекты-действия
-     * @param  string $status Текущий статус задания
-     * @param  int $customerId ID заказчика, создавшего задание
-     * @param  int|null $executorId ID исполнителя, откликнувшегося на задание (при наличии)
+     * @param  array $actions array of Taskforce\Actions\BaseAction implementations' instances
+     * @param  string $status task's current status
+     * @param  int $customerId ID of taks's creator
+     * @param  int|null $executorId ID of executor (if chosen)
      * @return void
      */
     public function __construct(array $actions, string $status, int $customerId, ?int $executorId = null)
     {
+        foreach ($actions as $action) {
+            if (!is_object($action) || !in_array('Taskforce\Actions\BaseAction', class_implements($action))) {
+                throw new ActionTypeException('The first argument must be an array of Taskforce\Actions\BaseAction implementations\'s instances');
+            } else {
+                $this->allActions[$action->getActionId()] = $action;
+            }
+        }
+        if (!array_key_exists($status, $this->getAllStatuses())) {
+            throw new StatusNameException('Incorrect status name');
+        }
         $this->status = $status;
         $this->customer = $customerId;
         $this->executor = $executorId;
-        foreach ($actions as $action) {
-            $this->allActions[$action->getActionId()] = $action;
-        }
     }
     
     /**
-     * Геттер статуса задания
+     * Task's status getter
      *
-     * @return string Статус задания
+     * @return string task's status
      */
     public function getStatus(): string
     {
@@ -44,9 +55,9 @@ class Task
     }
     
     /**
-     * Геттер заказчика задания
+     * Task's creator getter
      *
-     * @return int ID заказчика
+     * @return int ID of task's creator
      */
     public function getCustomerId(): int
     {
@@ -54,19 +65,19 @@ class Task
     }
     
     /**
-     * Геттер исполнителя задания
+     * Task's executor getter
      *
-     * @return int ID исполнителя
+     * @return int|null ID of executor (if chosen)
      */
-    public function getExecutorId(): int
+    public function getExecutorId(): ?int
     {
         return $this->executor;
     }
 
     /**
-     * Вывод массива всех возможных действий с заданиями
+     * Actions' getter
      *
-     * @return array Массив всех действий
+     * @return array array of all actions
      */
     public static function getAllActions(): array
     {
@@ -74,9 +85,9 @@ class Task
     }
 
     /**
-     * Вывод массива всех возможных статусов заданий
+     * Statuses' getter
      *
-     * @return array Массив всех статусов
+     * @return array array of all statuses
      */
     public static function getAllStatuses(): array
     {
@@ -90,10 +101,10 @@ class Task
     }
     
     /**
-     * Возвращает список всех возможных действий с заданием для указанного пользователя
+     * Get possible actions for a user
      *
-     * @param  int $userId ID пользователя
-     * @return array Массив объектов доступных действий
+     * @param  int $userId ID of user
+     * @return array array of possible actions
      */
     public function getPossibleActions(int $userId): array
     {
@@ -120,10 +131,10 @@ class Task
     }
 
     /**
-     * Вывод статуса, в который переходит задание после совершения указанного действия
+     * Get next status after action's performing
      *
-     * @param  string $action Внутреннее имя действия
-     * @return string Внутреннее имя статуса
+     * @param  string $action system name of action
+     * @return string system name of status
      */
     public static function getNextStatus(string $action): string
     {
@@ -140,6 +151,8 @@ class Task
             case 'action_refuse':
                 return self::STATUS_FAILED;
                 break;
+            default:
+                throw new ActionNameException('Incorrect name of action');
         }
     }
 }

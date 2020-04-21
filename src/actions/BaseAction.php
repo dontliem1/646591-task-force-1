@@ -4,35 +4,26 @@ namespace Taskforce\Actions;
 interface BaseAction 
 {
     /**
-     * Вывод названия действия
+     * Action's name getter
      *
-     * @return string Название действия
+     * @return string name of the action
      */
     public function getActionName(): string;
 
     /**
-     * Вывод внутреннего имени действия
+     * Action's system name
      *
-     * @return string Строка вида action_*
+     * @return string string of format action_...
      */
     public function getActionId(): string;
 
     /**
-     * Проверка условий на возможность совершения действия
+     * Checking user rights for performing the action
      *
-     * @param  mixed $user ID пользователя
-     * @param  mixed $task Объект задания
-     * @return bool Может ли указанный пользователь совершить текущее действие с указанным заданием
-     */
-
-    
-    /**
-     * Проверка прав доступа
-     *
-     * @param  int $userId ID пользователя
-     * @param  int $customerId ID заказчика
-     * @param  int|null $executorId ID исполнителя
-     * @return bool Может ли указанный пользователь совершить это действие
+     * @param  int $userId ID of a current user
+     * @param  int $customerId ID of a task's creator
+     * @param  int|null $executorId ID of a task's executor (if chosen)
+     * @return bool can the user perform the action?
      */
     public function checkUserRights(int $userId, int $customerId, ?int $executorId): bool;
 }
