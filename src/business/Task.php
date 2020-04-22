@@ -1,4 +1,5 @@
 <?php
+
 namespace Taskforce\Business;
 
 use Taskforce\Exceptions\ActionTypeException;
@@ -37,13 +38,13 @@ class Task
             }
         }
         if (!array_key_exists($status, $this->getAllStatuses())) {
-            throw new StatusNameException('Incorrect status name');
+            throw new StatusNameException($status . ' is incorrect status name');
         }
         $this->status = $status;
         $this->customer = $customerId;
         $this->executor = $executorId;
     }
-    
+
     /**
      * Task's status getter
      *
@@ -53,7 +54,7 @@ class Task
     {
         return $this->status;
     }
-    
+
     /**
      * Task's creator getter
      *
@@ -63,7 +64,7 @@ class Task
     {
         return $this->customer;
     }
-    
+
     /**
      * Task's executor getter
      *
@@ -99,7 +100,7 @@ class Task
             self::STATUS_FAILED => 'Проваленное'
         ];
     }
-    
+
     /**
      * Get possible actions for a user
      *
@@ -152,7 +153,7 @@ class Task
                 return self::STATUS_FAILED;
                 break;
             default:
-                throw new ActionNameException('Incorrect name of action');
+                throw new ActionNameException($action . ' is incorrect name of action');
         }
     }
 }
