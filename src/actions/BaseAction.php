@@ -1,7 +1,8 @@
 <?php
+
 namespace Taskforce\Actions;
 
-interface BaseAction 
+interface BaseAction
 {
     /**
      * Action's name getter

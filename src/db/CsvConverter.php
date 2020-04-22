@@ -1,4 +1,5 @@
 <?php
+
 namespace Taskforce\DB;
 
 use SplFileObject;
@@ -10,7 +11,7 @@ class CsvConverter
     private $path = '';
     private $columns = [];
     private $rows = [];
-    
+
     /**
      * Loads a file to converter
      *
@@ -37,14 +38,15 @@ class CsvConverter
             throw new SourceFileException('The file must contain at least two rows');
         }
     }
-    
+
     /**
      * Generates values for the column
      *
      * @param  string $column column name
      * @return string|int random or template value
      */
-    private function generateValue(string $column) {
+    private function generateValue(string $column)
+    {
         $random_values = [
             'user_id' => 20,
             'customer_id' => 20,
@@ -63,20 +65,20 @@ class CsvConverter
         $templates = [
             'categories' => 'translation, clean',
             'notifications' => 'message, action',
-            'status' => ['new', 'canceled', 'active', 'completed', 'failed'][rand(0,4)],
+            'status' => ['new', 'canceled', 'active', 'completed', 'failed'][rand(0, 4)],
             'last_activity_time' => date('Y-m-d H:i:s', time())
         ];
-        if (array_key_exists($column,$random_values)) {
+        if (array_key_exists($column, $random_values)) {
             $max = $random_values[$column];
-            $min = $max===1?0:1;
+            $min = $max === 1 ? 0 : 1;
             return rand($min, $max);
         }
-        if (array_key_exists($column,$templates)) {
+        if (array_key_exists($column, $templates)) {
             return $templates[$column];
         }
         return 'textPlaceholder';
     }
-    
+
     /**
      * Converts loaded .csv file to a SQL INSERT string
      *
@@ -86,12 +88,12 @@ class CsvConverter
     {
         $columns = [];
         foreach ($this->columns as $column) {
-            $columns[] = '`'.$column.'`';
+            $columns[] = '`' . $column . '`';
         }
         $rows = $this->rows;
         $values = [];
         foreach ($rows as $row) {
-            for ($i=0; $i < count($columns); $i++) {
+            for ($i = 0; $i < count($columns); $i++) {
                 if (!isset($row[$i])) {
                     $row[$i] = $this->generateValue($this->columns[$i]);
                 }
@@ -99,18 +101,19 @@ class CsvConverter
                     $row[$i] = var_export($row[$i], true);
                 }
             }
-            $values[] = '('.implode(', ', $row).')';
+            $values[] = '(' . implode(', ', $row) . ')';
         };
-        return 'INSERT INTO `'.$this->name.'` ('.implode(', ', $columns).') VALUES '.implode(', ', $values).';';
+        return 'INSERT INTO `' . $this->name . '` (' . implode(', ', $columns) . ') VALUES ' . implode(', ', $values) . ';';
     }
-    
+
     /**
      * Saves converted into INSERT string .csv file to .sql with the same name to the same folder
      *
      * @return void
      */
-    public function saveToSql() {
-        $file = new SplFileObject($this->path.'/'.$this->name.'.sql', "w");
+    public function saveToSql()
+    {
+        $file = new SplFileObject($this->path . '/' . $this->name . '.sql', "w");
         $file->fwrite($this->convertToSql());
     }
 }

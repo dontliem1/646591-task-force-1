@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 ini_set('display_errors', 'On');
@@ -11,7 +12,7 @@ require_once '../../vendor/autoload.php';
 
 $files = glob('../../data/*.csv', GLOB_BRACE);
 $converters = [];
-foreach($files as $counter => $file) {
+foreach ($files as $counter => $file) {
     try {
         $converters[$counter] = new CsvConverter($file);
         $converters[$counter]->saveToSql();
