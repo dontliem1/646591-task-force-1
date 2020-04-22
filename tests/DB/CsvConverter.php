@@ -17,6 +17,6 @@ foreach ($files as $counter => $file) {
         $converters[$counter] = new CsvConverter($file);
         $converters[$counter]->saveToSql();
     } catch (SourceFileException $e) {
-        error_log('Can\'t load the file into converter: ' . $e->getMessage());
+        error_log('Can\'t load the file '.$file.' into converter: ' . $e->getMessage());
     }
 }
