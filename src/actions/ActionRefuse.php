@@ -1,8 +1,9 @@
 <?php
+
 namespace Taskforce\Actions;
 
 class ActionRefuse implements BaseAction
-{        
+{
     public function getActionName(): string
     {
         return 'Отказаться';
@@ -12,7 +13,7 @@ class ActionRefuse implements BaseAction
     {
         return 'action_refuse';
     }
-    
+
     public function checkUserRights(int $userId, int $customerId, ?int $executorId): bool
     {
         return $userId === $executorId;
