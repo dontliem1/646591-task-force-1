@@ -19,10 +19,11 @@ use Yii;
  * @property Messages[] $messages0
  * @property Notifications[] $notifications
  * @property Opinions[] $opinions
- * @property Opinions[] $opinions0
+ * @property Opinions[] $opinionsGot
  * @property Profiles $profiles
  * @property Replies[] $replies
  * @property Tasks[] $tasks
+ * @property TasksAssigned[] $tasksAssigned
  * @property Cities $city
  */
 class User extends \yii\db\ActiveRecord
@@ -107,11 +108,11 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Opinions0]].
+     * Gets query for [[OpinionsGot]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getOpinions0()
+    public function getOpinionsGot()
     {
         return $this->hasMany(Opinion::className(), ['executor_id' => 'id']);
     }
@@ -144,6 +145,16 @@ class User extends \yii\db\ActiveRecord
     public function getTasks()
     {
         return $this->hasMany(Task::className(), ['customer_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[TasksAssigned]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasksAssigned()
+    {
+        return $this->hasMany(Task::className(), ['executor_id' => 'id']);
     }
 
     /**

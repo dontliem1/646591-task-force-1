@@ -22,6 +22,7 @@ use Yii;
  * @property string $status Status
  * @property string $dt_add Time created
  * @property int|null $accepted_reply Accepted reply
+ * @property int|null $executor_id Chosen executor
  *
  * @property Messages[] $messages
  * @property Notifications[] $notifications
@@ -31,6 +32,7 @@ use Yii;
  * @property Cities $city
  * @property Users $customer
  * @property Replies $acceptedReply
+ * @property Users $executor
  */
 class Task extends \yii\db\ActiveRecord
 {
@@ -49,7 +51,7 @@ class Task extends \yii\db\ActiveRecord
     {
         return [
             [['customer_id', 'city_id', 'name', 'description', 'category_id', 'lat', 'lng', 'dt_add'], 'required'],
-            [['customer_id', 'city_id', 'category_id', 'budget', 'accepted_reply'], 'integer'],
+            [['customer_id', 'city_id', 'category_id', 'budget', 'accepted_reply', 'executor_id'], 'integer'],
             [['description'], 'string'],
             [['lat', 'lng'], 'number'],
             [['expire', 'dt_add'], 'safe'],
@@ -58,6 +60,7 @@ class Task extends \yii\db\ActiveRecord
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['customer_id' => 'id']],
             [['accepted_reply'], 'exist', 'skipOnError' => true, 'targetClass' => Reply::className(), 'targetAttribute' => ['accepted_reply' => 'id']],
+            [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['executor_id' => 'id']],
         ];
     }
 
@@ -82,11 +85,12 @@ class Task extends \yii\db\ActiveRecord
             'status' => 'Status',
             'dt_add' => 'Dt Add',
             'accepted_reply' => 'Accepted Reply',
+            'executor_id' => 'Executor ID',
         ];
     }
 
     /**
-     * Gets query for [[Messages]].
+     * Gets query for [[Message]].
      *
      * @return \yii\db\ActiveQuery
      */
@@ -96,7 +100,7 @@ class Task extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Notifications]].
+     * Gets query for [[Notification]].
      *
      * @return \yii\db\ActiveQuery
      */
@@ -106,7 +110,7 @@ class Task extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Opinions]].
+     * Gets query for [[Opinion]].
      *
      * @return \yii\db\ActiveQuery
      */
@@ -163,6 +167,16 @@ class Task extends \yii\db\ActiveRecord
     public function getAcceptedReply()
     {
         return $this->hasOne(Reply::className(), ['id' => 'accepted_reply']);
+    }
+
+    /**
+     * Gets query for [[Executor]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExecutor()
+    {
+        return $this->hasOne(User::className(), ['id' => 'executor_id']);
     }
 
     /**

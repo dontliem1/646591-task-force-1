@@ -61,9 +61,11 @@ CREATE TABLE tasks
  status            varchar(255) NOT NULL DEFAULT 'new' COMMENT 'Статус',
  dt_add            date NOT NULL COMMENT 'Время создания',
  accepted_reply    int NULL COMMENT 'Выбранный отклик',
+ executor_id       int NULL COMMENT 'Выбранный исполнитель',
 FOREIGN KEY (category_id) REFERENCES categories(id),
 FOREIGN KEY (city_id) REFERENCES cities(id),
-FOREIGN KEY (customer_id) REFERENCES users(id)
+FOREIGN KEY (customer_id) REFERENCES users(id),
+FOREIGN KEY (executor_id) REFERENCES users(id)
 ) COMMENT='Задания';
 
 CREATE TABLE opinions
@@ -113,7 +115,7 @@ CREATE TABLE replies
  dt_add       date NOT NULL COMMENT 'Дата публикации отклика',
  rate         tinyint unsigned NOT NULL COMMENT 'Оценка выполненного задания',
  offer        int unsigned NULL COMMENT 'Указанная сумма',
- description      varchar(255) NULL COMMENT 'Комментарий',
+ description  text NULL COMMENT 'Комментарий',
  is_declined  bool NOT NULL DEFAULT 0 COMMENT 'Отклонено ли',
 FOREIGN KEY (task_id) REFERENCES tasks(id),
 FOREIGN KEY (executor_id) REFERENCES users(id)
