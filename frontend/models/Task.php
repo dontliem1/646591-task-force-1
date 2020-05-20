@@ -56,11 +56,11 @@ class Task extends \yii\db\ActiveRecord
             [['lat', 'lng'], 'number'],
             [['expire', 'dt_add'], 'safe'],
             [['name', 'files', 'address', 'status'], 'string', 'max' => 255],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Categories::className(), 'targetAttribute' => ['category_id' => 'id']],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cities::className(), 'targetAttribute' => ['city_id' => 'id']],
-            [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['customer_id' => 'id']],
-            [['accepted_reply'], 'exist', 'skipOnError' => true, 'targetClass' => Replies::className(), 'targetAttribute' => ['accepted_reply' => 'id']],
-            [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['executor_id' => 'id']],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+            [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['customer_id' => 'id']],
+            [['accepted_reply'], 'exist', 'skipOnError' => true, 'targetClass' => Reply::className(), 'targetAttribute' => ['accepted_reply' => 'id']],
+            [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['executor_id' => 'id']],
         ];
     }
 
@@ -90,93 +90,93 @@ class Task extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Messages]].
+     * Gets query for [[Message]].
      *
-     * @return \yii\db\ActiveQuery|MessagesQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getMessages()
     {
-        return $this->hasMany(Messages::className(), ['task_id' => 'id']);
+        return $this->hasMany(Message::className(), ['task_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Notifications]].
+     * Gets query for [[Notification]].
      *
-     * @return \yii\db\ActiveQuery|NotificationsQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getNotifications()
     {
-        return $this->hasMany(Notifications::className(), ['task_id' => 'id']);
+        return $this->hasMany(Notification::className(), ['task_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Opinions]].
+     * Gets query for [[Opinion]].
      *
-     * @return \yii\db\ActiveQuery|OpinionsQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getOpinions()
     {
-        return $this->hasMany(Opinions::className(), ['task_id' => 'id']);
+        return $this->hasMany(Opinion::className(), ['task_id' => 'id']);
     }
 
     /**
      * Gets query for [[Replies]].
      *
-     * @return \yii\db\ActiveQuery|RepliesQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getReplies()
     {
-        return $this->hasMany(Replies::className(), ['task_id' => 'id']);
+        return $this->hasMany(Reply::className(), ['task_id' => 'id']);
     }
 
     /**
      * Gets query for [[Category]].
      *
-     * @return \yii\db\ActiveQuery|CategoriesQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getCategory()
     {
-        return $this->hasOne(Categories::className(), ['id' => 'category_id']);
+        return $this->hasOne(Category::className(), ['id' => 'category_id']);
     }
 
     /**
      * Gets query for [[City]].
      *
-     * @return \yii\db\ActiveQuery|CitiesQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getCity()
     {
-        return $this->hasOne(Cities::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
 
     /**
      * Gets query for [[Customer]].
      *
-     * @return \yii\db\ActiveQuery|UsersQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getCustomer()
     {
-        return $this->hasOne(Users::className(), ['id' => 'customer_id']);
+        return $this->hasOne(User::className(), ['id' => 'customer_id']);
     }
 
     /**
      * Gets query for [[AcceptedReply]].
      *
-     * @return \yii\db\ActiveQuery|RepliesQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getAcceptedReply()
     {
-        return $this->hasOne(Replies::className(), ['id' => 'accepted_reply']);
+        return $this->hasOne(Reply::className(), ['id' => 'accepted_reply']);
     }
 
     /**
      * Gets query for [[Executor]].
      *
-     * @return \yii\db\ActiveQuery|UsersQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getExecutor()
     {
-        return $this->hasOne(Users::className(), ['id' => 'executor_id']);
+        return $this->hasOne(User::className(), ['id' => 'executor_id']);
     }
 
     /**
