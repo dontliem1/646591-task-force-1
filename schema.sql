@@ -41,8 +41,18 @@ CREATE TABLE profiles
  notifications      varchar(255) NULL COMMENT 'Список включенных типов уведомлений',
  views              int unsigned NULL COMMENT 'Просмотры профиля',
 UNIQUE KEY (user_id),
-FOREIGN KEY (user_id) REFERENCES users(id)
+FOREIGN KEY (user_id) REFERENCES users(id),
+FULLTEXT KEY (categories) COMMENT 'Индекс для фильтрации исполнителей по категориям'
 ) COMMENT='Профили пользователей';
+
+CREATE TABLE bookmarks
+(
+ id             int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ user_id        int NOT NULL COMMENT 'Пользователь',
+ bookmarked_id  int NOT NULL COMMENT 'Избранный пользователь',
+FOREIGN KEY (user_id) REFERENCES users(id),
+FOREIGN KEY (bookmarked_id) REFERENCES users(id)
+) COMMENT='Избранное пользователей';
 
 CREATE TABLE tasks
 (
