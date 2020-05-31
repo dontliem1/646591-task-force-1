@@ -15,16 +15,18 @@ use Yii;
  * @property string $dt_add Date registered
  * @property string|null $last_activity_time Time of last activity
  *
- * @property Messages[] $messages
- * @property Messages[] $messages0
- * @property Notifications[] $notifications
- * @property Opinions[] $opinions
- * @property Opinions[] $opinionsGot
- * @property Profiles $profiles
- * @property Replies[] $replies
- * @property Tasks[] $tasks
+ * @property Bookmark[] $bookmarks
+ * @property Bookmark[] $bookmarkedBy
+ * @property Message[] $messages
+ * @property Message[] $messagesRecieved
+ * @property Notification[] $notifications
+ * @property Opinion[] $opinions
+ * @property Opinion[] $opinionsGot
+ * @property Profile $profile
+ * @property Reply[] $replies
+ * @property Task[] $tasks
  * @property TasksAssigned[] $tasksAssigned
- * @property Cities $city
+ * @property City $city
  */
 class User extends \yii\db\ActiveRecord
 {
@@ -45,8 +47,9 @@ class User extends \yii\db\ActiveRecord
             [['email', 'name', 'city_id', 'password', 'dt_add'], 'required'],
             [['city_id'], 'integer'],
             [['dt_add', 'last_activity_time'], 'safe'],
-            [['email', 'name', 'password'], 'string', 'max' => 255],
-            [['email'], 'unique'],
+            [['name', 'password'], 'string', 'max' => 255],
+            ['email', 'email', 'max' => 255],
+            ['email', 'unique'],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
         ];
     }
@@ -57,14 +60,31 @@ class User extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'email' => 'Email',
-            'name' => 'Name',
-            'city_id' => 'City ID',
-            'password' => 'Password',
-            'dt_add' => 'Dt Add',
-            'last_activity_time' => 'Last Activity Time',
+            'email' => 'Электронная почта',
+            'name' => 'Ваше имя',
+            'city_id' => 'Город проживания',
+            'password' => 'Пароль',
         ];
+    }
+
+    /**
+     * Gets query for [[Bookmarks]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBookmarks()
+    {
+        return $this->hasMany(Bookmark::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for foreign [[Bookmarks]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBookmarkedBy()
+    {
+        return $this->hasMany(Bookmark::className(), ['bookmarked_id' => 'id']);
     }
 
     /**
@@ -78,11 +98,11 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Messages0]].
+     * Gets query for received [[Messages]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getMessages0()
+    public function getMessagesRecieved()
     {
         return $this->hasMany(Message::className(), ['recipient_id' => 'id']);
     }
@@ -108,7 +128,7 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[OpinionsGot]].
+     * Gets query for recieved [[Opinions]].
      *
      * @return \yii\db\ActiveQuery
      */
@@ -118,11 +138,11 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Profiles]].
+     * Gets query for [[Profile]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getProfiles()
+    public function getProfile()
     {
         return $this->hasOne(Profile::className(), ['user_id' => 'id']);
     }
@@ -148,7 +168,7 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[TasksAssigned]].
+     * Gets query for assigned [[Tasks]].
      *
      * @return \yii\db\ActiveQuery
      */
@@ -160,7 +180,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[City]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|CityQuery
      */
     public function getCity()
     {
@@ -174,5 +194,19 @@ class User extends \yii\db\ActiveRecord
     public static function find()
     {
         return new UserQuery(get_called_class());
+    }
+
+    /**
+     * Gets sorting types
+     *
+     * @return array
+     */
+    public static function sortings(): array
+    {
+        return [
+            'rating' => 'Рейтингу',
+            'tasks' => 'Числу заказов',
+            'views' => 'Популярности',
+        ];
     }
 }

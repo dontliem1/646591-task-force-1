@@ -187,4 +187,19 @@ class Task extends \yii\db\ActiveRecord
     {
         return new TaskQuery(get_called_class());
     }
+
+    /**
+     * Gets periods for filtering
+     *
+     * @return array
+     */
+    public static function periods(): array
+    {
+        return [
+            'all'=>'За всё время',
+            'day'=>'За день',
+            'week'=>'За неделю',
+            'month'=>'За месяц',
+        ];
+    }
 }
