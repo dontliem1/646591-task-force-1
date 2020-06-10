@@ -30,6 +30,10 @@ use Yii;
  */
 class User extends \yii\db\ActiveRecord
 {
+    const DEFAULT_SORTING = 'dt_add';
+    public $rating;
+    public $categories;
+    
     /**
      * {@inheritdoc}
      */
@@ -48,7 +52,7 @@ class User extends \yii\db\ActiveRecord
             [['city_id'], 'integer'],
             [['dt_add', 'last_activity_time'], 'safe'],
             [['name', 'password'], 'string', 'max' => 255],
-            ['email', 'email', 'max' => 255],
+            [['email'], 'email'],
             ['email', 'unique'],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
         ];

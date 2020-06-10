@@ -36,6 +36,12 @@ use Yii;
  */
 class Task extends \yii\db\ActiveRecord
 {
+    const STATUS_NEW = 'new';
+    const STATUS_CANCELED = 'canceled';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_FAILED = 'failed';
+    
     /**
      * {@inheritdoc}
      */
@@ -73,7 +79,7 @@ class Task extends \yii\db\ActiveRecord
             'id' => 'ID',
             'customer_id' => 'Customer ID',
             'city_id' => 'City ID',
-            'name' => 'Name',
+            'name' => 'Поиск по названию',
             'description' => 'Description',
             'category_id' => 'Category ID',
             'files' => 'Files',
@@ -186,20 +192,5 @@ class Task extends \yii\db\ActiveRecord
     public static function find()
     {
         return new TaskQuery(get_called_class());
-    }
-
-    /**
-     * Gets periods for filtering
-     *
-     * @return array
-     */
-    public static function periods(): array
-    {
-        return [
-            'all'=>'За всё время',
-            'day'=>'За день',
-            'week'=>'За неделю',
-            'month'=>'За месяц',
-        ];
     }
 }

@@ -2,73 +2,131 @@
 
 namespace frontend\controllers;
 
+use Yii;
 use frontend\models\Category;
 use frontend\models\Task;
-use frontend\models\TaskFilterForm;
-use Yii;
+use frontend\models\TaskSearch;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
 /**
- * Browse Tasks Controller
- * 
- * Эта страница нужна для показа всех доступных на сайте заданий.
+ * TasksController implements the CRUD actions for Task model.
  */
 class TasksController extends Controller
 {
     /**
-     * Displays tasks.
-     *
-     * @return void
+     * {@inheritdoc}
      */
-    public function actionIndex(array $categories = null)
+    public function behaviors()
     {
-        $periods = Task::periods();
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Lists all Task models.
+     * @return mixed
+     */
+    public function actionIndex()
+    {
+        $periods = TaskSearch::periods();
         $allCategories = Category::getArray();
-        // Показываются только задания без привязыки к адресу, а также из города пользователя, либо из города, выбранного пользователем в текущей сессии.
-        // TODO добавить проверку на выбранный город, заменить вывод города на район
-        $request = Task::find()
-        ->select(['tasks.id', 'tasks.name', 'tasks.dt_add', 'category' => 'categories.name', 'categories.icon', 'tasks.description', 'budget', 'cities.city', 'address'])
-        ->where(['status' => 'new'])
-        ->leftJoin('categories', 'tasks.category_id = categories.id')
-        ->leftJoin('cities', 'tasks.city_id = cities.id');
-        $model = new TaskFilterForm();
-        if ($model->load(Yii::$app->request->get())) {
-            if ($model->categories) {
-                $query = ['or'];
-                foreach ($model->categories as $category) {
-                    $query[] = ['categories.icon'=>$category];
-                }
-                $request = $request->andWhere($query);
-            }
-            if ($model->hasNoReplies) {
-                // добавляет к условию фильтрации показ заданий только без откликов исполнителей
-                $request = $request->leftJoin('replies', 'replies.task_id = tasks.id')->andWhere(['IS', 'replies.id', null])->groupBy('tasks.id');
-            }
-            if ($model->isRemote) {
-                // добавляет к условию фильтрации показ заданий без географической привязки
-                $request = $request->andWhere(['is', 'address', null]);
-            }
-            if ($model->period) {
-                // Выпадающий список «Период» добавляет к условию фильтрации диапазон времени, когда было создано задание
-                switch ($model->period) {
-                    case 'day':
-                        $request = $request = $request->andFilterCompare('tasks.dt_add', date('Y-m-d', strtotime('-1 day')), '>');
-                        break;
-                    case 'week':
-                        $request = $request = $request->andFilterCompare('tasks.dt_add', date('Y-m-d', strtotime('-1 week')), '>');
-                        break;
-                    case 'month':
-                        $request = $request = $request->andFilterCompare('tasks.dt_add', date('Y-m-d', strtotime('-1 month')), '>');
-                        break;
-                }
-            }
-            if ($model->name) {
-                // Поле «Поиск по названию» добавляет к условию фильтрации нестрогий поиск по совпадению в названии задания.
-                $request = $request->andFilterWhere(['like', 'tasks.name', $model->name]);
-            }
+        $searchModel = new TaskSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'periods' => $periods,
+            'allCategories' => $allCategories,
+        ]);
+    }
+
+    /**
+     * Displays a single Task model.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionView($id)
+    {
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+
+    /**
+     * Creates a new Task model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
+    public function actionCreate()
+    {
+        $model = new Task();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
         }
-        // На странице показывается максимум пять заданий.
-        $tasks = $request->orderBy('tasks.dt_add DESC')->asArray()->limit(5)->all();
-        return $this->render('@app/views/site/tasks', compact('tasks','allCategories','model','periods'));
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Updates an existing Task model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Deletes an existing Task model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionDelete($id)
+    {
+        $this->findModel($id)->delete();
+
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Finds the Task model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Task the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Task::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }
