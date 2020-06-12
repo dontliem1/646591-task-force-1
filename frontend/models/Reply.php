@@ -93,6 +93,16 @@ class Reply extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[dt_add]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDtAdd()
+    {
+        return $this->dt_add;
+    }
+
+    /**
      * {@inheritdoc}
      * @return ReplyQuery the active query used by this AR class.
      */

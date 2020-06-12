@@ -20,7 +20,7 @@ echo ListView::widget([
             <p class="new-task_description">'.$model->description.'</p>
             <b class="new-task__price new-task__price--'.$model->category->icon.'">'.$model->budget.'<b> ₽</b></b>
             <p class="new-task__place">'.$model->city->city.'</p>
-            <span class="new-task__time">'.Yii::$app->formatter->format($model->dt_add, 'relativeTime').'</span>';
+            <span class="new-task__time">'.Yii::$app->formatter->format($model->dtAdd, 'relativeTime').'</span>';
     },
     'options' => ['class' => 'new-task', 'tag' => 'section'],
     'pager' => [
