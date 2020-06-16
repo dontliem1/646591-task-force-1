@@ -25,11 +25,16 @@ use Yii;
  * @property Profile $profile
  * @property Reply[] $replies
  * @property Task[] $tasks
- * @property TasksAssigned[] $tasksAssigned
+ * @property Task[] $tasksAssigned
  * @property City $city
  */
 class User extends \yii\db\ActiveRecord
 {
+    private $_tasksCount;
+    private $_tasksAssignedCount;
+    private $_opinionsGotCount;
+    private $_rating;
+    
     /**
      * {@inheritdoc}
      */
@@ -48,7 +53,7 @@ class User extends \yii\db\ActiveRecord
             [['city_id'], 'integer'],
             [['dt_add', 'last_activity_time'], 'safe'],
             [['name', 'password'], 'string', 'max' => 255],
-            ['email', 'email', 'max' => 255],
+            [['email'], 'email'],
             ['email', 'unique'],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
         ];
@@ -74,7 +79,7 @@ class User extends \yii\db\ActiveRecord
      */
     public function getBookmarks()
     {
-        return $this->hasMany(Bookmark::className(), ['user_id' => 'id']);
+        return $this->hasMany(Bookmark::className(), ['bookmarked_id' => 'id']);
     }
 
     /**
@@ -84,7 +89,18 @@ class User extends \yii\db\ActiveRecord
      */
     public function getBookmarkedBy()
     {
-        return $this->hasMany(Bookmark::className(), ['bookmarked_id' => 'id']);
+        return $this->hasMany(Bookmark::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for bookmarked by current user status.
+     * TODO Заменить 1 на текущего пользователя]
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBookmarkedByCurrentUser()
+    {
+        return $this->hasOne(Bookmark::className(), ['bookmarked_id' => 'id'])->andOnCondition(['user_id' => 1]);
     }
 
     /**
@@ -136,6 +152,64 @@ class User extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Opinion::className(), ['executor_id' => 'id']);
     }
+    
+    /**
+     * Sets virtual property of received opinions count
+     *
+     * @param  mixed $count
+     * @return \yii\db\ActiveQuery
+     */
+    public function setOpinionsGotCount($count)
+    {
+        $this->_opinionsGotCount = (int) $count;
+    }
+    
+    /**
+     * Gets query for counting received opinions
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOpinionsGotCount()
+    {
+        if ($this->_opinionsGotCount === null) {
+            $this->setOpinionsGotCount($this->getOpinionsGot()->count());
+        }
+        return $this->_opinionsGotCount;
+    }
+    
+    /**
+     * Sets virtual property of rating
+     *
+     * @param  mixed $count
+     * @return \yii\db\ActiveQuery
+     */
+    public function setRating($count)
+    {
+        $this->_rating = (int) $count;
+    }
+    
+    /**
+     * Gets query for counting received opinions
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRating()
+    {
+        if ($this->_rating === null) {
+            $this->setRating($this->getOpinionsGot()->average('rate'));
+        }
+        return $this->_rating;
+    }
+
+    /**
+     * Gets query for [[last_activity_time]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLastActivityTime()
+    {
+        return $this->last_activity_time;
+    }
 
     /**
      * Gets query for [[Profile]].
@@ -145,6 +219,16 @@ class User extends \yii\db\ActiveRecord
     public function getProfile()
     {
         return $this->hasOne(Profile::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Categories]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategories()
+    {
+        return $this->profile->categories;
     }
 
     /**
@@ -166,6 +250,30 @@ class User extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Task::className(), ['customer_id' => 'id']);
     }
+    
+    /**
+     * Sets virtual property of tasks count
+     *
+     * @param  mixed $count
+     * @return \yii\db\ActiveQuery
+     */
+    public function setTasksCount($count)
+    {
+        $this->_tasksCount = (int) $count;
+    }
+    
+    /**
+     * Gets query for counting Tasks
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasksCount()
+    {
+        if ($this->_tasksCount === null) {
+            $this->setTasksCount($this->getTasks()->count());
+        }
+        return $this->_tasksCount;
+    }
 
     /**
      * Gets query for assigned [[Tasks]].
@@ -175,6 +283,30 @@ class User extends \yii\db\ActiveRecord
     public function getTasksAssigned()
     {
         return $this->hasMany(Task::className(), ['executor_id' => 'id']);
+    }
+    
+    /**
+     * Sets virtual property of assigned tasks count
+     *
+     * @param  mixed $count
+     * @return \yii\db\ActiveQuery
+     */
+    public function setTasksAssignedCount($count)
+    {
+        $this->_tasksAssignedCount = (int) $count;
+    }
+    
+    /**
+     * Gets query for counting assigned Tasks
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasksAssignedCount()
+    {
+        if ($this->_tasksAssignedCount === null) {
+            $this->setTasksAssignedCount($this->getTasksAssigned()->count());
+        }
+        return $this->_tasksAssignedCount;
     }
 
     /**
@@ -188,25 +320,21 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[dt_add]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDtAdd()
+    {
+        return $this->dt_add;
+    }
+
+    /**
      * {@inheritdoc}
      * @return UserQuery the active query used by this AR class.
      */
     public static function find()
     {
         return new UserQuery(get_called_class());
-    }
-
-    /**
-     * Gets sorting types
-     *
-     * @return array
-     */
-    public static function sortings(): array
-    {
-        return [
-            'rating' => 'Рейтингу',
-            'tasks' => 'Числу заказов',
-            'views' => 'Популярности',
-        ];
     }
 }

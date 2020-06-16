@@ -2,76 +2,137 @@
 
 namespace frontend\controllers;
 
+use Yii;
 use frontend\models\Category;
 use frontend\models\User;
-use frontend\models\UserFilterForm;
-use Yii;
+use frontend\models\UserSearch;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
 /**
- * Browse Users Controller
- * 
- * Страница для показа всех зарегистрированных на сайте исполнителей.
+ * UsersController implements the CRUD actions for User model.
  */
 class UsersController extends Controller
 {
-    // По умолчанию выбран критерий «дата регистрации».
-    const DEFAULT_SORTING = 'dt_add';
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ],
+        ];
+    }
 
     /**
-     * Displays users.
-     *
-     * @return void
+     * Lists all User models.
+     * @return mixed
      */
-    public function actionIndex($sort = self::DEFAULT_SORTING)
+    public function actionIndex()
     {
-        $sortings = User::sortings();
-        if (!key_exists($sort, $sortings)) {
-            $sort = self::DEFAULT_SORTING;
+        $allCategories = Category::getArray();
+        $searchModel = new UserSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'allCategories' => $allCategories,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Displays a single User model.
+     * Если этот пользователь не является исполнителем, то страница должна быть недоступна: вместо неё показывать ошибку 404.
+     * 
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionView($id)
+    {
+        $allCategories = Category::getArray();
+        $model = $this->findModel($id);
+        if (!$model->profile->categories) {
+            throw new NotFoundHttpException('Пользователь не является исполнителем');
         }
-        $categories = Category::getArray();
-        $request = User::find()
-            ->select(['users.id', 'users.name', 'users.dt_add', 'categories', 'views', 'about', 'last_activity_time', 'tasks' => 'COUNT(tasks.id)', 'opinions' => 'COUNT(opinions.id)', 'rating' => 'AVG(opinions.rate)'])
-            // Исполнителями считаются пользователи, отметившие хотя бы одну категорию у себя в профиле.
-            ->where(['IS NOT', 'categories', null])
-            ->leftJoin('profiles', 'users.id = profiles.user_id')
-            ->leftJoin('tasks', 'users.id = tasks.executor_id')
-            ->leftJoin('opinions', 'users.id = opinions.executor_id')
-            ->groupBy('users.id');
-        $model = new UserFilterForm();
-        if ($model->load(Yii::$app->request->get())) {
-            if ($model->name) {
-                // Поле «Поиск по имени» сбрасывает все выбранные фильтры и ищет пользователя с нестрогим совпадением по его имени.
-                $request = $request->andFilterWhere(['like', 'users.name', $model->name]);
-                $model->categories = $model->isFree = $model->isOnline = $model->hasOpinions = $model->hasOpinions = $model->isBookmarked = null;
-            }
-            if ($model->categories) {
-                foreach ($model->categories as $category) {
-                    $request = $request->andWhere('MATCH(categories) AGAINST (:category)', [':category' => $category]);
-                }
-            }
-            if ($model->isFree) {
-                // добавляет к условию фильтрации показ исполнителей, для которых сейчас нет назначенных активных заданий
-                $request = $request->andWhere(['<>', 'tasks.status', 'active'])->orWhere(['is', 'tasks.id', null]);
-            }
-            if ($model->isOnline) {
-                // добавляет к условию фильтрации показ исполнителей, время последней активности которых было не больше получаса назад
-                $request = $request->andFilterCompare('users.last_activity_time', date('Y-m-d H:i:s', strtotime('-30 mins')), '>');
-            }
-            if ($model->hasOpinions) {
-                // добавляет к условию фильтрации показ исполнителей с отзывами
-                $request = $request->andWhere(['IS NOT', 'opinions.id', null]);
-            }
-            if ($model->isBookmarked) {
-                // добавляет к условию фильтрации показ пользователей, которые были добавлены в избранное
-                //TODO подставить текущего пользователя
-                $current_user = 1;
-                $request = $request->leftJoin('bookmarks', 'bookmarked_id = users.id')->andFilterCompare('bookmarks.user_id', $current_user);
-            }
+        return $this->render('view', [
+            'model' => $model,
+            'allCategories' => $allCategories,
+        ]);
+    }
+
+    /**
+     * Creates a new User model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
+    public function actionCreate()
+    {
+        $model = new User();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
         }
-        // Список исполнителей всегда отсортирован по одному критерию от большего к меньшему.
-        // На странице показывается максимум пять исполнителей.
-        $users = $request->orderBy([$sort => SORT_DESC])->asArray()->limit(5)->all();
-        return $this->render('@app/views/site/users', compact('sortings', 'categories', 'users', 'model'));
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Updates an existing User model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Deletes an existing User model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionDelete($id)
+    {
+        $this->findModel($id)->delete();
+
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Finds the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return User the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = User::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('Пользователь не найден.');
     }
 }
