@@ -6,30 +6,16 @@ use Yii;
 use frontend\models\Category;
 use frontend\models\Task;
 use frontend\models\TaskSearch;
-use yii\web\Controller;
+use frontend\controllers\SecuredController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * TasksController implements the CRUD actions for Task model.
  */
-class TasksController extends Controller
+class TasksController extends SecuredController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Task models.
      * @return mixed

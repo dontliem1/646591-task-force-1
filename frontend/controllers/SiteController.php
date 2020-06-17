@@ -4,12 +4,17 @@ namespace frontend\controllers;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
+use frontend\models\Category;
+use frontend\models\City;
+use frontend\models\TaskSearch;
 use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
-use yii\web\Controller;
+use frontend\controllers\SecuredController;
+use yii\web\Response;
+use yii\widgets\ActiveForm;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use common\models\LoginForm;
+use frontend\models\LoginForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -18,39 +23,8 @@ use frontend\models\ContactForm;
 /**
  * Site controller
  */
-class SiteController extends Controller
+class SiteController extends SecuredController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout', 'signup'],
-                'rules' => [
-                    [
-                        'actions' => ['signup'],
-                        'allow' => true,
-                        'roles' => ['?'],
-                    ],
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -68,36 +42,41 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays homepage.
+     * Displays landing page.
      *
      * @return mixed
      */
     public function actionIndex()
     {
-        return $this->render('index');
-    }
-
-    /**
-     * Logs in a user.
-     *
-     * @return mixed
-     */
-    public function actionLogin()
-    {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            return $this->redirect('/tasks');
         }
 
+        $this->layout = 'landing';
+
+        $allCategories = Category::getArray();
+        $searchModel = new TaskSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        } else {
-            $model->password = '';
-
-            return $this->render('login', [
-                'model' => $model,
-            ]);
+        
+        if (Yii::$app->request->getIsPost()) {
+            $model->load(Yii::$app->request->post());
+            if (Yii::$app->request->isAjax) {
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                return ActiveForm::validate($model);
+            }
+            if ($model->validate() && $model->login()) {
+                return $this->redirect('/tasks');
+            } else {
+                $model->password = '';
+            }
         }
+
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+            'allCategories' => $allCategories,
+            'model' => $model,
+        ]);
     }
 
     /**
@@ -152,14 +131,16 @@ class SiteController extends Controller
      */
     public function actionSignup()
     {
+        $allCities = City::getArray();
         $model = new SignupForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
             return $this->goHome();
         }
 
         return $this->render('signup', [
             'model' => $model,
+            'allCities' => $allCities,
         ]);
     }
 

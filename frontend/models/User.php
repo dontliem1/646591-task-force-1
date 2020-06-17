@@ -3,6 +3,8 @@
 namespace frontend\models;
 
 use Yii;
+use yii\base\NotSupportedException;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "users".
@@ -28,7 +30,7 @@ use Yii;
  * @property Task[] $tasksAssigned
  * @property City $city
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
     private $_tasksCount;
     private $_tasksAssignedCount;
@@ -41,36 +43,6 @@ class User extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'users';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['email', 'name', 'city_id', 'password'], 'safe'],
-            [['email', 'name', 'city_id', 'password'], 'required'],
-            [['city_id'], 'integer'],
-            ['name', 'string', 'max' => 255],
-            ['password', 'string', 'min' => 8],
-            ['email', 'email'],
-            ['email', 'unique'],
-            [['city_id'], 'exist', 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'email' => 'Электронная почта',
-            'name' => 'Ваше имя',
-            'city_id' => 'Город проживания',
-            'password' => 'Пароль',
-        ];
     }
 
     /**
@@ -319,6 +291,27 @@ class User extends \yii\db\ActiveRecord
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
+    
+    /**
+     * Sets virtual property of tasks count
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCityId()
+    {
+        return $this->city_id;
+    }
+    
+    /**
+     * Sets virtual property of tasks count
+     *
+     * @param  int $id
+     * @return \yii\db\ActiveQuery
+     */
+    public function setCityId(int $id)
+    {
+        $this->city_id = $id;
+    }
 
     /**
      * Gets query for [[dt_add]].
@@ -345,5 +338,77 @@ class User extends \yii\db\ActiveRecord
     public function formName()
     {
         return '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return User|null
+     */
+    public static function findByUsername($username)
+    {
+        return self::findOne(['email' => $username]);
+    }
+
+    /**
+     * Validates password
+     *
+     * @param string $password password to validate
+     * @return bool if password provided is valid for current user
+     */
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password);
+    }
+
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password = Yii::$app->security->generatePasswordHash($password);
     }
 }
