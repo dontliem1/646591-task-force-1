@@ -7,30 +7,16 @@ use frontend\models\Category;
 use frontend\models\City;
 use frontend\models\UserSearch;
 use frontend\models\User;
-use yii\web\Controller;
+use frontend\controllers\SecuredController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * UsersController implements the CRUD actions for User model.
  */
-class UsersController extends Controller
+class UsersController extends SecuredController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all User models.
      * @return mixed
@@ -80,7 +66,6 @@ class UsersController extends Controller
         $model = new User();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
             $model->dt_add = date('Y-m-d');
             if ($model->save()) {
                 return $this->goHome();

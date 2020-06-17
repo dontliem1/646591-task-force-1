@@ -9,11 +9,12 @@ use yii\widgets\ActiveForm;
 
 $form = ActiveForm::begin([
     'options' => [
-        'class' => 'registration__user-form form-create'],
-        'fieldConfig' => [
-            'options' => ['tag' => false],
-            'errorOptions' => ['tag' => 'span'],
-        ],
+        'class' => 'registration__user-form form-create'
+    ],
+    'fieldConfig' => [
+        'options' => ['tag' => false],
+        'errorOptions' => ['tag' => 'span'],
+    ],
 ]);
 echo $form->field($model, 'email', ['labelOptions' => ['class' => isset($model->errors['email'])?'input-danger':false]])->input('email', ['class' => 'input textarea', 'placeholder'=>'kumarm@mail.ru']);
 echo '<span>Введите валидный адрес электронной почты</span>';

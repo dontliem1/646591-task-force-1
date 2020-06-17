@@ -1,35 +1,32 @@
 <?php
 
 /* @var $this yii\web\View */
-/* @var $form yii\bootstrap\ActiveForm */
 /* @var $model \frontend\models\SignupForm */
 
 use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
+use yii\helpers\Url;
 
-$this->title = 'Signup';
-$this->params['breadcrumbs'][] = $this->title;
+$this->title = 'Регистрация аккаунта';
 ?>
-<div class="site-signup">
+<section class="registration__user">
     <h1><?= Html::encode($this->title) ?></h1>
+    <div class="registration-wrapper">
+    <?= $this->render('_form', [
+        'model' => $model,
+        'allCities' => $allCities,
+    ]) ?>
+    </div>
+</section>
 
-    <p>Please fill out the following fields to signup:</p>
-
-    <div class="row">
-        <div class="col-lg-5">
-            <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
-
-                <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
-
-                <?= $form->field($model, 'email') ?>
-
-                <?= $form->field($model, 'password')->passwordInput() ?>
-
-                <div class="form-group">
-                    <?= Html::submitButton('Signup', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
-                </div>
-
-            <?php ActiveForm::end(); ?>
-        </div>
+<?php $this->beginBlock('woman'); ?>
+<div class="clipart-woman"><?= Html::img(Url::to('@web/img/clipart-woman.png'),['width'=>238,'height'=>450]) ?></div>
+<div class="clipart-message">
+    <div class="clipart-message-text">
+    <h2>Знаете ли вы, что?</h2>
+    <p>После регистрации вам будет доступно более
+        двух тысяч заданий из двадцати разных категорий.</p>
+        <p>В среднем, наши исполнители зарабатывают
+        от 500 рублей в час.</p>
     </div>
 </div>
+<?php $this->endBlock(); ?>

@@ -129,6 +129,37 @@ class TaskSearch extends Task
     }
 
     /**
+     * Creates data provider instance for landing
+     * Здесь следует разместить карточки четырёх самых свежих заданий, с сортировкой по дате в порядке убывания. 
+     *
+     * @return ActiveDataProvider
+     */
+    public function landing()
+    {
+        $taskTable = Task::tableName();
+        
+        $query = Task::find()->where(['status' => Task::STATUS_NEW])->limit(4);
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort' => [
+                'attributes' => [
+                    'dtAdd' => [
+                        'asc' => [$taskTable.'.dt_add' => SORT_DESC],
+                        'desc' => [$taskTable.'.dt_add' => SORT_DESC],
+                        'label' => false,
+                    ]
+                ],
+                'defaultOrder' => [
+                    'dtAdd' => SORT_DESC,
+                ]
+            ],
+        ]);
+
+        return $dataProvider;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function formName()

@@ -2,18 +2,31 @@
 namespace frontend\models;
 
 use Yii;
-use yii\base\Model;
-use common\models\User;
+use Yii\base\Model;
+use frontend\models\User;
 
 /**
  * Signup form
  */
 class SignupForm extends Model
 {
-    public $username;
     public $email;
+    public $name;
+    public $city_id;
     public $password;
 
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'email' => 'Электронная почта',
+            'name' => 'Ваше имя',
+            'city_id' => 'Город проживания',
+            'password' => 'Пароль',
+        ];
+    }
 
     /**
      * {@inheritdoc}
@@ -21,19 +34,22 @@ class SignupForm extends Model
     public function rules()
     {
         return [
-            ['username', 'trim'],
-            ['username', 'required'],
-            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
-            ['username', 'string', 'min' => 2, 'max' => 255],
-
+            [['email', 'name', 'city_id', 'password'], 'safe'],
+            [['email', 'name', 'city_id', 'password'], 'required'],
+            
             ['email', 'trim'],
-            ['email', 'required'],
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
-            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
+            ['email', 'unique', 'targetClass' => User::className(), 'message' => 'Пользователь с таким Email уже существует.'],
 
-            ['password', 'required'],
-            ['password', 'string', 'min' => 6],
+            ['name', 'trim'],
+            ['name', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
+            ['name', 'string', 'max' => 255],
+
+            [['city_id'], 'integer'],
+            [['city_id'], 'exist', 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+
+            ['password', 'string', 'min' => 8],
         ];
     }
 
@@ -49,12 +65,11 @@ class SignupForm extends Model
         }
         
         $user = new User();
-        $user->username = $this->username;
         $user->email = $this->email;
+        $user->name = $this->name;
+        $user->cityId = $this->city;
         $user->setPassword($this->password);
-        $user->generateAuthKey();
-        $user->generateEmailVerificationToken();
-        return $user->save() && $this->sendEmail($user);
+        return $user->save();
 
     }
 
