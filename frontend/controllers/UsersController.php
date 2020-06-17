@@ -4,8 +4,9 @@ namespace frontend\controllers;
 
 use Yii;
 use frontend\models\Category;
-use frontend\models\User;
+use frontend\models\City;
 use frontend\models\UserSearch;
+use frontend\models\User;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -70,19 +71,25 @@ class UsersController extends Controller
 
     /**
      * Creates a new User model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * If creation is successful, the browser will be redirected to the home page.
      * @return mixed
      */
     public function actionCreate()
     {
+        $allCities = City::getArray();
         $model = new User();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
+            $model->dt_add = date('Y-m-d');
+            if ($model->save()) {
+                return $this->goHome();
+            }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'allCities' => $allCities,
         ]);
     }
 
