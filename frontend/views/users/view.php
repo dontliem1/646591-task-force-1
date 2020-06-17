@@ -20,7 +20,7 @@ for ($i = 1; $i <= 5; $i++) {
 }
 $chosenCategories = explode(', ', $model->profile->categories);
 foreach ($chosenCategories as $category) {
-    $categoriesHtml .= Html::a($allCategories[$category], ['tasks/', 'categories[]' => $category], ['class' => ['link-regular']]);
+    $categoriesHtml .= Html::a($allCategories[$category], ['tasks/', 'categories[]' => $category], ['class' => 'link-regular']);
 }
 ?>
 <section class="content-view">
@@ -54,9 +54,9 @@ foreach ($chosenCategories as $category) {
                 </div>
                 <h3 class="content-view__h3">Контакты</h3>
                 <div class="user__card-link">
-                    <?= Html::a($model->profile->phone, 'tel:'.str_replace(['+', ' ', ' ', '(', ')', '-'], ['%2B'], $model->profile->phone), ['class' => ['user__card-link--tel', 'link-regular']]) ?>
-                    <?= Html::mailto($model->email, $model->email, ['class' => ['user__card-link--email', 'link-regular']]) ?>
-                    <?= Html::a($model->profile->skype, 'skype:'.$model->profile->skype.'?call', ['class' => ['user__card-link--skype', 'link-regular']]) ?>
+                    <?= Html::a($model->profile->phone, 'tel:'.str_replace(['+', ' ', ' ', '(', ')', '-'], ['%2B'], $model->profile->phone), ['class' => 'user__card-link--tel', 'link-regular']) ?>
+                    <?= Html::mailto($model->email, $model->email, ['class' => 'user__card-link--email link-regular']) ?>
+                    <?= Html::a($model->profile->skype, 'skype:'.$model->profile->skype.'?call', ['class' => 'user__card-link--skype link-regular']) ?>
                 </div>
                 </div>
             <div class="user__card-photo">

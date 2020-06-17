@@ -71,6 +71,16 @@ class City extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets cities as Array
+     *
+     * @return array
+     */
+    public static function getArray(): array
+    {
+        return self::find()->select('city')->indexBy('id')->asArray(true)->column();
+    }
+
+    /**
      * {@inheritdoc}
      * @return CityQuery the active query used by this AR class.
      */

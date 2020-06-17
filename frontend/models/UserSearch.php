@@ -28,6 +28,8 @@ class UserSearch extends User
             [['isFree', 'isOnline', 'gotOpinions', 'isBookmarked'], 'boolean'],
             ['name', 'string'],
             [['sort', 'categories', 'dtAdd'], 'safe'],
+            ['name', 'trim'],
+            ['name', 'default'],
         ];
     }
 
@@ -53,6 +55,7 @@ class UserSearch extends User
     {
         return '';
     }
+    
     /**
      * Creates data provider instance with search query applied
      *

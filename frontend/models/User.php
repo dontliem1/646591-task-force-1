@@ -49,13 +49,15 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['email', 'name', 'city_id', 'password', 'dt_add'], 'required'],
+            [['email', 'name', 'city_id', 'password'], 'safe'],
+            [['email', 'name', 'city_id', 'password'], 'required'],
             [['city_id'], 'integer'],
-            [['dt_add', 'last_activity_time'], 'safe'],
-            [['name', 'password'], 'string', 'max' => 255],
+            ['name', 'string', 'max' => 255],
+            ['password', 'string', 'min' => 8, 'max' => 255],
             [['email'], 'email'],
             ['email', 'unique'],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+            [['city_id'], 'exist', 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+            // [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
         ];
     }
 
@@ -336,5 +338,13 @@ class User extends \yii\db\ActiveRecord
     public static function find()
     {
         return new UserQuery(get_called_class());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function formName()
+    {
+        return '';
     }
 }

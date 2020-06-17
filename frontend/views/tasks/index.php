@@ -15,7 +15,7 @@ echo ListView::widget([
     'itemOptions' => ['class' => 'new-task__card'],
     'itemView' => function ($model, $key, $index, $widget) {
         //TODO Название района следует получать из координат, указанных в задании, через geocoder API
-        return '<div class="new-task__title">'.Html::a('<h2>'.$model->name.'</h2>', ['view', 'id' => $model->id], ['class' => ['link-regular']]).Html::a('<p>'.$model->category->name.'</p>', ['/tasks', 'categories' => [$model->category->icon]], ['class' => ['new-task__type','link-regular']]).'</div>
+        return '<div class="new-task__title">'.Html::a('<h2>'.$model->name.'</h2>', ['view', 'id' => $model->id], ['class' => 'link-regular']).Html::a('<p>'.$model->category->name.'</p>', ['/tasks', 'categories' => [$model->category->icon]], ['class' => 'new-task__type link-regular']).'</div>
             <div class="new-task__icon new-task__icon--'.$model->category->icon.'"></div>
             <p class="new-task_description">'.$model->description.'</p>
             <b class="new-task__price new-task__price--'.$model->category->icon.'">'.$model->budget.'<b> ₽</b></b>

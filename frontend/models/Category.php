@@ -57,15 +57,6 @@ class Category extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     * @return CategoryQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new CategoryQuery(get_called_class());
-    }
-
-    /**
      * Gets categories as Array
      *
      * @return array
@@ -73,5 +64,14 @@ class Category extends \yii\db\ActiveRecord
     public static function getArray(): array
     {
         return self::find()->select('name')->indexBy('icon')->asArray(true)->column();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return CategoryQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new CategoryQuery(get_called_class());
     }
 }
