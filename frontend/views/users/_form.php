@@ -12,7 +12,7 @@ $form = ActiveForm::begin([
         'class' => 'registration__user-form form-create'],
         'fieldConfig' => [
             'options' => ['tag' => false],
-            'template' => "{label}\n{input}"
+            'errorOptions' => ['tag' => 'span'],
         ],
 ]);
 echo $form->field($model, 'email', ['labelOptions' => ['class' => isset($model->errors['email'])?'input-danger':false]])->input('email', ['class' => 'input textarea', 'placeholder'=>'kumarm@mail.ru']);
