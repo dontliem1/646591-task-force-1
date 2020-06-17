@@ -54,6 +54,16 @@ AppAsset::register($this);
                         </svg>
                     </a>
                 </div>
+                <?php if (Url::to() === '/signup') : ?>
+                <div class="header__account--index">
+                    <a href="#" class="header__account-enter open-modal" data-for="enter-form">
+                        <span>Вход</span></a>
+                    или
+                    <a href="<?= Url::to(['/signup']) ?>" class="header__account-registration">
+                        Регистрация
+                    </a>
+                </div>
+                <?php else : ?>
                 <div class="header__nav">
                     <ul class="header-nav__list site-list">
                         <li class="site-list__item">
@@ -116,6 +126,7 @@ AppAsset::register($this);
                         </li>
                     </ul>
                 </div>
+                <?php endif; ?>
             </div>
         </header>
         <main class="page-main">
@@ -142,16 +153,16 @@ AppAsset::register($this);
                 <div class="page-footer__links">
                     <ul class="links__list">
                         <li class="links__item">
-                            <a href="">Задания</a>
+                            <a href="<?= Url::to(['/tasks']) ?>">Задания</a>
                         </li>
                         <li class="links__item">
                             <a href="">Мой профиль</a>
                         </li>
                         <li class="links__item">
-                            <a href="">Исполнители</a>
+                            <a href="<?= Url::to(['/users']) ?>">Исполнители</a>
                         </li>
                         <li class="links__item">
-                            <a href="">Регистрация</a>
+                            <a href="<?= Url::to(['/signup']) ?>">Регистрация</a>
                         </li>
                         <li class="links__item">
                             <a href="">Создать задание</a>
@@ -166,6 +177,7 @@ AppAsset::register($this);
                         <img class="copyright-logo" src="<?= Url::to('@web/img/academy-logo.png') ?>" width="185" height="63" alt="Логотип HTML Academy">
                     </a>
                 </div>
+                <?php if (isset($this->blocks['woman'])) {echo $this->blocks['woman'];} ?>
             </div>
         </footer>
     </div>

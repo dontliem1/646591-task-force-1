@@ -14,7 +14,7 @@ $this->title = 'Исполнители';
 <?= ListView::widget([
     'dataProvider' => $dataProvider,
     'layout' => "<div class='user__search-link'><p>Сортировать по:</p>{sorter}</div>\n{items}\n<div class='new-task__pagination'>{pager}</div>",
-    'itemOptions' => ['class' => ['content-view__feedback-card', 'user__search-wrapper']],
+    'itemOptions' => ['class' => 'content-view__feedback-card user__search-wrapper'],
     'options' => [
         'tag'=>'section',
         'class'=>'user__search'

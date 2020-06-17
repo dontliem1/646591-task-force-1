@@ -15,7 +15,7 @@ $this->title = $model->name;
             <div class="content-view__headline">
                 <h1><?= Html::encode($this->title) ?></h1>
                 <span>Размещено в категории
-                    <?= Html::a($model->category->name, ['tasks/', 'categories' => [$model->category->icon]], ['class' => ['link-regular']]) ?>
+                    <?= Html::a($model->category->name, ['tasks/', 'categories' => [$model->category->icon]], ['class' => 'link-regular']) ?>
                     <?= Yii::$app->formatter->format($model->dtAdd, 'relativeTime') ?></span>
             </div>
             <b class="new-task__price new-task__price--<?= $model->category->icon ?> content-view-price"><?= $model->budget ?><b> ₽</b></b>

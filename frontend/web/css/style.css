@@ -1683,7 +1683,7 @@ footer {
   padding: 20px;
   padding-right: 80px; }
 
-.registration__user-form label:first-child {
+.registration__user-form label:first-of-type {
   margin-top: 0; }
 
 .clipart-woman {
