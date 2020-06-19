@@ -32,6 +32,9 @@ use yii\web\IdentityInterface;
  */
 class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
+    const ROLE_CUSTOMER = 'customer';
+    const ROLE_EXECUTOR = 'executor';
+
     private $_tasksCount;
     private $_tasksAssignedCount;
     private $_opinionsGotCount;
@@ -195,13 +198,23 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[Categories]].
+     * Gets chosen [[Categories]].
      *
      * @return \yii\db\ActiveQuery
      */
     public function getCategories()
     {
         return $this->profile->categories;
+    }
+
+    /**
+     * Gets user's role.
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRole()
+    {
+        return empty($this->categories) ? self::ROLE_CUSTOMER : self::ROLE_EXECUTOR;
     }
 
     /**

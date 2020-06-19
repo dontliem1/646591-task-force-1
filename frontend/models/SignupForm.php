@@ -12,7 +12,7 @@ class SignupForm extends Model
 {
     public $email;
     public $name;
-    public $city_id;
+    public $city;
     public $password;
 
     /**
@@ -23,8 +23,21 @@ class SignupForm extends Model
         return [
             'email' => 'Электронная почта',
             'name' => 'Ваше имя',
-            'city_id' => 'Город проживания',
+            'city' => 'Город проживания',
             'password' => 'Пароль',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeHints()
+    {
+        return [
+            'email' => 'Введите валидный адрес электронной почты',
+            'name' => 'Введите ваше имя и фамилию',
+            'city' => 'Укажите город, чтобы находить подходящие задачи',
+            'password' => 'Длина пароля от 8 символов',
         ];
     }
 
@@ -34,8 +47,8 @@ class SignupForm extends Model
     public function rules()
     {
         return [
-            [['email', 'name', 'city_id', 'password'], 'safe'],
-            [['email', 'name', 'city_id', 'password'], 'required'],
+            [['email', 'name', 'city', 'password'], 'safe'],
+            [['email', 'name', 'city', 'password'], 'required'],
             
             ['email', 'trim'],
             ['email', 'email'],
@@ -43,11 +56,10 @@ class SignupForm extends Model
             ['email', 'unique', 'targetClass' => User::className(), 'message' => 'Пользователь с таким Email уже существует.'],
 
             ['name', 'trim'],
-            ['name', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
             ['name', 'string', 'max' => 255],
 
-            [['city_id'], 'integer'],
-            [['city_id'], 'exist', 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+            [['city'], 'integer'],
+            [['city'], 'exist', 'targetClass' => City::className(), 'targetAttribute' => ['city' => 'id']],
 
             ['password', 'string', 'min' => 8],
         ];
@@ -69,6 +81,7 @@ class SignupForm extends Model
         $user->name = $this->name;
         $user->cityId = $this->city;
         $user->setPassword($this->password);
+        
         return $user->save();
 
     }

@@ -59,11 +59,12 @@ class Category extends \yii\db\ActiveRecord
     /**
      * Gets categories as Array
      *
+     * @param bool $indexByIcons if index by [[icon]] or [[id]]
      * @return array
      */
-    public static function getArray(): array
+    public static function getArray(bool $indexByIcons = true): array
     {
-        return self::find()->select('name')->indexBy('icon')->asArray(true)->column();
+        return self::find()->select('name')->indexBy($indexByIcons?'icon':'id')->asArray(true)->column();
     }
 
     /**

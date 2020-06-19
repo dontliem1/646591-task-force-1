@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\helpers\Json;
 /* @var $this yii\web\View */
 /* @var $model frontend\models\Task */
 
@@ -18,19 +19,24 @@ $this->title = $model->name;
                     <?= Html::a($model->category->name, ['tasks/', 'categories' => [$model->category->icon]], ['class' => 'link-regular']) ?>
                     <?= Yii::$app->formatter->format($model->dtAdd, 'relativeTime') ?></span>
             </div>
-            <b class="new-task__price new-task__price--<?= $model->category->icon ?> content-view-price"><?= $model->budget ?><b> ₽</b></b>
+            <?php if ($model->budget) {
+                echo '<b class="new-task__price new-task__price--'.$model->category->icon.' content-view-price">'.$model->budget.'<b> ₽</b></b>';
+            } ?>
             <div class="new-task__icon new-task__icon--<?= $model->category->icon ?> content-view-icon"></div>
         </div>
         <div class="content-view__description">
             <h3 class="content-view__h3">Общее описание</h3>
             <p><?= $model->description ?></p>
         </div>
+        <?php if ($model->files) : ?>
         <div class="content-view__attach">
             <h3 class="content-view__h3">Вложения</h3>
-            <!-- TODO реализовать вложения -->
-            <a href="#">my_picture.jpeg</a>
-            <a href="#">agreement.docx</a>
+            <?php foreach (Json::decode($model->files) as $file) {
+                echo Html::a($file,Url::to('@web/uploads/'.$file),['target' => '_blank']);
+            }
+            ?>
         </div>
+        <?php endif; ?>
         <div class="content-view__location">
             <h3 class="content-view__h3">Расположение</h3>
             <!-- TODO подтянуть расположение -->

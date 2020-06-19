@@ -62,36 +62,10 @@ class Task extends \yii\db\ActiveRecord
             [['lat', 'lng'], 'number'],
             [['expire', 'dt_add'], 'safe'],
             [['name', 'files', 'address', 'status'], 'string', 'max' => 255],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['customer_id' => 'id']],
             [['accepted_reply'], 'exist', 'skipOnError' => true, 'targetClass' => Reply::className(), 'targetAttribute' => ['accepted_reply' => 'id']],
             [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['executor_id' => 'id']],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'customer_id' => 'Customer ID',
-            'city_id' => 'City ID',
-            'name' => 'Поиск по названию',
-            'description' => 'Description',
-            'category_id' => 'Category ID',
-            'files' => 'Files',
-            'address' => 'Address',
-            'lat' => 'Lat',
-            'lng' => 'Lng',
-            'budget' => 'Budget',
-            'expire' => 'Expire',
-            'status' => 'Status',
-            'dt_add' => 'Dt Add',
-            'accepted_reply' => 'Accepted Reply',
-            'executor_id' => 'Executor ID',
         ];
     }
 
@@ -146,6 +120,16 @@ class Task extends \yii\db\ActiveRecord
     }
 
     /**
+     * Sets [[category_id]]
+     *
+     * @param  int $id
+     */
+    public function setCategoryId(int $id)
+    {
+        $this->category_id = $id;
+    }
+
+    /**
      * Gets query for [[City]].
      *
      * @return \yii\db\ActiveQuery
@@ -153,6 +137,26 @@ class Task extends \yii\db\ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+    
+    /**
+     * Gets virtual property of city id
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCityId()
+    {
+        return $this->city_id;
+    }
+    
+    /**
+     * Sets virtual property of city id
+     *
+     * @param  int $id
+     */
+    public function setCityId(int $id)
+    {
+        $this->city_id = $id;
     }
 
     /**
@@ -193,6 +197,16 @@ class Task extends \yii\db\ActiveRecord
     public function getDtAdd()
     {
         return $this->dt_add;
+    }
+
+    /**
+     * Sets [[customer_id]].
+     *
+     * @param int $id id of a current user
+     */
+    public function setCustomerId(int $id)
+    {
+        return $this->customer_id = $id;
     } 
 
     /**

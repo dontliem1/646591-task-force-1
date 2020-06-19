@@ -7,7 +7,7 @@ use yii\widgets\ListView;
 
 /* @var $this yii\web\View */
 
-$this->registerJsFile('js/main.js');
+$this->registerJsFile('/js/main.js');
 $this->title = 'TaskForce';
 ?>
 <div class="landing-top">
