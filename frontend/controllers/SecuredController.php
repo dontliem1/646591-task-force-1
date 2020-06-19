@@ -1,8 +1,10 @@
 <?php
 namespace frontend\controllers;
 
+use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use frontend\models\User;
 
 abstract class SecuredController extends Controller
 {
@@ -32,7 +34,17 @@ abstract class SecuredController extends Controller
                     [
                         'allow' => true,
                         'controllers' => ['tasks', 'users'],
+                        'actions' => ['index', 'view'],
                         'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'controllers' => ['tasks'],
+                        'actions' => ['create'],
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->user->identity->role === User::ROLE_CUSTOMER;
+                        }
                     ],
                     [
                         'allow' => true,

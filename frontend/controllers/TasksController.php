@@ -5,11 +5,12 @@ namespace frontend\controllers;
 use Yii;
 use frontend\models\Category;
 use frontend\models\Task;
+use frontend\models\TaskCreate;
 use frontend\models\TaskSearch;
 use frontend\controllers\SecuredController;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
+use yii\web\UploadedFile;
+use yii\helpers\Json;
 
 /**
  * TasksController implements the CRUD actions for Task model.
@@ -55,14 +56,34 @@ class TasksController extends SecuredController
      */
     public function actionCreate()
     {
-        $model = new Task();
+        $model = new TaskCreate();
+        $allCategories = Category::getArray(false);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if (Yii::$app->request->getIsPost()) {
+            $model->load(Yii::$app->request->post());
+            $model->uploadedFiles = UploadedFile::getInstances($model, 'uploadedFiles');
+            $filenames = [];
+            foreach ($model->uploadedFiles as $file) {
+                $filenames[] = $file->name;
+            }
+            if (!empty($filenames)) {
+                $model->files = Json::encode($filenames);
+            }
+            $model->setCustomerId(Yii::$app->user->identity->getId());
+            if (!$model->city) {
+                $model->setCityId(Yii::$app->user->identity->cityId);
+            }
+            //TODO заполнить lat и long
+            $model->lat = 60;
+            $model->lng = 60;
+            if ($model->upload() && $model->save()) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'allCategories' => $allCategories,
         ]);
     }
 
